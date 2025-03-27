@@ -28,10 +28,10 @@ type Timer struct {
 // It returns a Timer that can be used to cancel the call using its Stop method,
 // or pause using its Pause method
 func AfterFunc(d time.Duration, f func()) *Timer {
-	t := new(Timer)
-	t.Duration = d
+	t := NewTimer(d)
 	t.fn = func() {
 		t.state = stateExpired
+		t.c <- time.Now()
 		f()
 	}
 	return t
@@ -91,4 +91,11 @@ func (t *Timer) Stop() bool {
 	t.state = stateExpired
 	t.t.Stop()
 	return true
+}
+
+func (t *Timer) Restart(d time.Duration) {
+	t.Duration = d
+	t.StartedAt = time.Now()
+	t.state = stateActive
+	t.t = time.AfterFunc(t.Duration, t.fn)
 }

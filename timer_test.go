@@ -95,3 +95,28 @@ func TestChanPause(t *testing.T) {
 	timer.Start()
 	time.Sleep(time.Second)
 }
+
+func TestRestart(t *testing.T) {
+	timer := NewTimer(time.Millisecond)
+	c := make(chan bool)
+	count := 0
+	go func() {
+		<-timer.C
+		count++
+		c <- true
+		<-timer.C
+		count++
+		c <- true
+	}()
+	timer.Start()
+	<-c
+	timer.Restart(time.Millisecond)
+	select {
+	case <-c:
+		if count != 2 {
+			t.Fatalf("count = %d", count)
+		}
+	case <-time.After(time.Millisecond * 100):
+		t.Fatal("timeout")
+	}
+}
