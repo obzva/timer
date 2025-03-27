@@ -16,10 +16,10 @@ const (
 type Timer struct {
 	C         <-chan time.Time
 	c         chan time.Time
-	duration  time.Duration
+	Duration  time.Duration
 	state     State
 	fn        func()
-	startedAt time.Time
+	StartedAt time.Time
 	t         *time.Timer
 }
 
@@ -29,7 +29,7 @@ type Timer struct {
 // or pause using its Pause method
 func AfterFunc(d time.Duration, f func()) *Timer {
 	t := new(Timer)
-	t.duration = d
+	t.Duration = d
 	t.fn = func() {
 		t.state = stateExpired
 		f()
@@ -45,7 +45,7 @@ func NewTimer(d time.Duration) *Timer {
 	t := new(Timer)
 	t.C = c
 	t.c = c
-	t.duration = d
+	t.Duration = d
 	t.fn = func() {
 		t.state = stateExpired
 		t.c <- time.Now()
@@ -64,8 +64,8 @@ func (t *Timer) Pause() bool {
 		return false
 	}
 	t.state = stateIdle
-	dur := time.Since(t.startedAt)
-	t.duration = t.duration - dur
+	dur := time.Since(t.StartedAt)
+	t.Duration = t.Duration - dur
 	return true
 }
 
@@ -74,9 +74,9 @@ func (t *Timer) Start() bool {
 	if t.state != stateIdle {
 		return false
 	}
-	t.startedAt = time.Now()
+	t.StartedAt = time.Now()
 	t.state = stateActive
-	t.t = time.AfterFunc(t.duration, t.fn)
+	t.t = time.AfterFunc(t.Duration, t.fn)
 	return true
 }
 
@@ -87,7 +87,7 @@ func (t *Timer) Stop() bool {
 	if t.state != stateActive {
 		return false
 	}
-	t.startedAt = time.Now()
+	t.StartedAt = time.Now()
 	t.state = stateExpired
 	t.t.Stop()
 	return true
