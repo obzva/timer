@@ -93,6 +93,7 @@ func (t *Timer) Stop() bool {
 	return true
 }
 
+// Restart restarts the timer with a new duration.
 func (t *Timer) Restart(d time.Duration) {
 	t.Duration = d
 	t.StartedAt = time.Now()
